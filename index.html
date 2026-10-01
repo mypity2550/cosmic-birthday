@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Google Space Birthday Explorer | ค้นหาภาพดาราศาสตร์ผ่าน Google Search & Google AI Studio</title>
+  <meta name="description" content="ค้นหาภาพถ่ายดาราศาสตร์ประจำวันเกิดของคุณทั้งหมดผ่าน Google Search และฟังเสียงบรรยายธรรมชาติจาก Google AI Studio">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌌</text></svg>">
+</head>
+<body>
+  <!-- ผืนผ้าใบดวงดาวและดาวตก 3 มิติ -->
+  <canvas id="space-canvas"></canvas>
+
+  <!-- ละอองหมอกเนบิวลาแสงสีนีออน -->
+  <div class="nebula-glow nebula-1"></div>
+  <div class="nebula-glow nebula-2"></div>
+  <div class="nebula-glow nebula-3"></div>
+
+  <!-- โครงสร้างแอปพลิเคชันหลัก -->
+  <div class="app-container">
+    
+    <!-- แถบด้านบน (Navbar) -->
+    <header class="navbar">
+      <div class="brand" id="brand-logo" title="กลับหน้าแรก">
+        <div class="brand-icon">🌐</div>
+        <div class="brand-text">
+          <h1>GOOGLE SPACE SEARCH</h1>
+          <p>ค้นหาภาพดาราศาสตร์ผ่าน Google Search • เสียงบรรยาย Google AI Studio</p>
+        </div>
+      </div>
+      <div class="nav-controls">
+        <button id="btn-api-settings" class="icon-btn active" title="ตั้งค่า Google AI Studio & Google Search">
+          <span class="icon">✨</span> Google AI Studio
+        </button>
+        <button id="toggle-sound" class="icon-btn active" title="เปิด/ปิดเสียงเอฟเฟกต์อวกาศ">
+          <span class="icon">🔊</span> เสียง: เปิด
+        </button>
+      </div>
+    </header>
+
+    <!-- จอฉายสไลด์จำลองหน้าจอมือถือ (Mobile Viewport Slider) -->
+    <div class="mobile-viewport" id="mobile-viewport">
+      
+      <!-- ลู่สไลด์สองหน้าจอแบบภาพยนตร์ (Screens Track) -->
+      <div class="screens-track" id="screens-track">
+
+        <!-- ==========================================
+             หน้าจอที่ 1: หน้าค้นหา (SCREEN 1: SEARCH)
+             ========================================== -->
+        <section class="screen-panel" id="screen-home">
+          
+          <div class="hero-section">
+            <div class="hero-badge">
+              <span>✦</span> POWERED BY GOOGLE SEARCH & GOOGLE AI STUDIO <span>✦</span>
+            </div>
+            <h2 class="hero-title">
+              ภาพดาราศาสตร์ประจำวันเกิดของคุณ <span class="gradient-text">Google Search</span>
+            </h2>
+            <p class="hero-subtitle">
+              ค้นหาภาพถ่ายและเหตุการณ์ดาราศาสตร์ทั้งหมดผ่าน <strong>Google Search</strong> และฟังเสียงบรรยายอัจฉริยะจาก <strong>Google AI Studio</strong> แม่นยำ ครอบคลุม และคมชัดทุกช่วงเวลา
+            </p>
+
+            <!-- กล่องใส่ข้อมูลวันเกิด (Cosmic Numpad Console) -->
+            <div class="search-card">
+              
+              <!-- สลับโหมดการพิมพ์ -->
+              <div class="input-mode-selector">
+                <span class="mode-label">⚡ วิธีการระบุวันเกิด:</span>
+                <div class="mode-pills">
+                  <button type="button" class="mode-pill active" id="pill-split">
+                    ⌨️ ช่องแยกกด Numpad เร็ว
+                  </button>
+                  <button type="button" class="mode-pill" id="pill-single">
+                    📝 พิมพ์อิสระบรรทัดเดียว
+                  </button>
+                  <button type="button" class="mode-pill" id="pill-picker">
+                    📅 ปฏิทิน
+                  </button>
+                </div>
+              </div>
+
+              <form id="search-form" class="search-form">
+                
+                <!-- 1. แบบช่องแยก 3 ช่อง: วว / ดด / ปปปป (Numpad Jumper) -->
+                <div class="numpad-box-container" id="numpad-split-group">
+                  <label class="input-label">
+                    🔢 กดตัวเลขวันเกิดบน Numpad (ระบบค้นหาภาพ NASA APOD อัตโนมัติ):
+                  </label>
+                  
+                  <div class="numpad-inputs-row">
+                    <!-- ช่องวัน -->
+                    <div class="numpad-field-col">
+                      <span class="field-hint">วัน (วว)</span>
+                      <input 
+                        type="text" 
+                        id="input-day" 
+                        class="numpad-input" 
+                        placeholder="DD" 
+                        maxlength="2" 
+                        inputmode="numeric" 
+                        pattern="[0-9]*"
+                        autocomplete="off"
+                        autofocus
+                      >
+                    </div>
+
+                    <span class="date-slash">/</span>
+
+                    <!-- ช่องเดือน -->
+                    <div class="numpad-field-col">
+                      <span class="field-hint">เดือน (ดด)</span>
+                      <input 
+                        type="text" 
+                        id="input-month" 
+                        class="numpad-input" 
+                        placeholder="MM" 
+                        maxlength="2" 
+                        inputmode="numeric" 
+                        pattern="[0-9]*"
+                        autocomplete="off"
+                      >
+                    </div>
+
+                    <span class="date-slash">/</span>
+
+                    <!-- ช่องปี (รองรับทั้ง ค.ศ. และ พ.ศ.) -->
+                    <div class="numpad-field-col year-col">
+                      <span class="field-hint">ปี (ค.ศ. หรือ พ.ศ.)</span>
+                      <input 
+                        type="text" 
+                        id="input-year" 
+                        class="numpad-input year-input" 
+                        placeholder="YYYY เช่น 2000 หรือ 2543" 
+                        maxlength="4" 
+                        inputmode="numeric" 
+                        pattern="[0-9]*"
+                        autocomplete="off"
+                      >
+                    </div>
+                  </div>
+
+                  <div class="year-convert-notice" id="year-convert-notice">
+                    ⚡ ค้นหาภาพอวกาศ Real-Time อัปเดตล่าสุดปี 2026 ทุกวัน (ย้อนหลังครอบคลุมถึง 16 มิ.ย. 1995)
+                  </div>
+                </div>
+
+                <!-- 2. แบบพิมพ์อิสระช่องเดียว (Single Free Text Input) -->
+                <div class="single-input-group hidden" id="single-input-group">
+                  <label class="input-label" for="free-date-input">
+                    📝 พิมพ์ตัวเลขอย่างอิสระ เช่น <code>15/08/2000</code> หรือ <code>15-8-2543</code> หรือ <code>15082000</code>:
+                  </label>
+                  <input 
+                    type="text" 
+                    id="free-date-input" 
+                    class="cosmic-input single-free-input" 
+                    placeholder="พิมพ์วันเกิด เช่น 15/08/2000 หรือ 15082000"
+                    inputmode="numeric"
+                    autocomplete="off"
+                  >
+                </div>
+
+                <!-- 3. แบบ Date Picker ดั้งเดิม -->
+                <div class="native-picker-group hidden" id="native-picker-group">
+                  <label class="input-label" for="native-date-input">
+                    📅 เลือกจากปฏิทิน:
+                  </label>
+                  <input 
+                    type="date" 
+                    id="native-date-input" 
+                    class="cosmic-input"
+                    min="1950-01-01" 
+                    max="2030-12-31"
+                  >
+                </div>
+
+                <!-- ปุ่มสำรวจอวกาศ -->
+                <button type="submit" id="btn-launch-search" class="launch-btn">
+                  <span>🔍</span> ค้นหาภาพจาก Google Search ในวันเกิด <span class="arrow-icon">➔</span>
+                </button>
+              </form>
+
+              <!-- ทางลัดวันประวัติศาสตร์และปุ่มสุ่ม -->
+              <div class="preset-chips">
+                <span class="preset-title">ภาพดาราศาสตร์ Real-Time ยอดนิยม (อัปเดต 2026):</span>
+                <button type="button" class="chip-btn" data-date="2026-10-01">🌕 จันทร์เพ็ญภูเขาไฟเอตนา (1 ต.ค. 2026)</button>
+                <button type="button" class="chip-btn" data-date="2026-07-14">☄️ ดาวเคราะห์น้อย Torifune (14 ก.ค. 2026)</button>
+                <button type="button" class="chip-btn" data-date="2007-07-14">🫧 ดาวฤกษ์ในฟองแก๊ส RCW 79</button>
+                <button type="button" class="chip-btn" data-date="2022-07-12">✨ ภาพแรกของ James Webb</button>
+                <button type="button" class="chip-btn" data-date="2019-04-10">🕳️ ภาพแรกของหลุมดำ M87*</button>
+                <button type="button" class="chip-btn" data-date="1995-06-16">🌟 APOD ภาพแรกในประวัติศาสตร์</button>
+                <button type="button" id="btn-random" class="chip-btn chip-random">🎲 สุ่มวันจาก Google Search (1995-2026)</button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==========================================
+             หน้าจอที่ 2: หน้าแสดงผลลัพธ์ (SCREEN 2: RESULT)
+             ========================================== -->
+        <section class="screen-panel" id="screen-result">
+          
+          <!-- แถบเครื่องมือนำทางด้านบนของหน้าผลลัพธ์ -->
+          <div class="result-top-bar">
+            <button type="button" id="btn-back-home" class="back-pill-btn">
+              <span class="arrow-back">←</span> ย้อนกลับไปค้นหาวันอื่น
+            </button>
+            
+            <div class="swipe-hint" id="data-source-badge">
+              <span>🌐 Google Search & Google AI Studio</span>
+            </div>
+          </div>
+
+          <div class="results-wrapper">
+            
+            <!-- แถบแจ้งเตือนสถานะการค้นหา (ตรงวัน vs แสดงวันใกล้เคียงที่สุด) -->
+            <div id="status-banner" class="status-banner closest">
+              <div id="banner-icon" class="banner-icon">🌐</div>
+              <div class="banner-content">
+                <h4 id="banner-title">ภาพดาราศาสตร์ประจำวันเกิด</h4>
+                <p id="banner-desc">กำลังคำนวณระยะห่าง...</p>
+              </div>
+            </div>
+
+            <!-- การ์ดวัตถุอวกาศหลัก (นิ่ง มั่นคง ไม่ขยับตามเมาส์) -->
+            <article id="celestial-card" class="celestial-card static-card">
+              <div class="card-grid">
+                
+                <!-- ฝั่งรูปภาพ/วิดีโอวัตถุอวกาศ NASA APOD / Google Search -->
+                <div class="image-showcase">
+                  <div class="image-overlay-tags">
+                    <span id="card-date-badge" class="space-badge">2021-12-25</span>
+                    <span id="card-type-badge" class="space-badge badge-telescope">Google Search</span>
+                  </div>
+                  
+                  <!-- รูปภาพ APOD -->
+                  <img id="card-image" src="" alt="ภาพดาราศาสตร์จาก Google Search" loading="lazy">
+                  
+                  <!-- วิดีโอ APOD (กรณีเป็นคลิป YouTube / Vimeo) -->
+                  <iframe id="card-video" class="hidden" src="" frameborder="0" allowfullscreen></iframe>
+
+                  <button id="btn-fullscreen" class="btn-fullscreen" title="ดูภาพขยายใหญ่">
+                    <span>🔍</span> ดูภาพเต็ม
+                  </button>
+                </div>
+
+                <!-- ฝั่งรายละเอียดข้อมูล -->
+                <div class="card-details" id="card-details-box">
+                  <div class="detail-header">
+                    <div class="date-indicator">
+                      <span>✦</span>
+                      <span id="card-instrument-badge">Google Search Grounding</span>
+                    </div>
+                    <h3 id="card-title-th" class="object-name-th">ชื่อภาพดาราศาสตร์บน Google Search</h3>
+                    <p id="card-title-en" class="object-name-en">Original Space Title</p>
+                  </div>
+
+                  <!-- กล่องข้อมูลสเปกทางดาราศาสตร์ -->
+                  <div class="specs-grid">
+                    <div class="spec-item">
+                      <span class="spec-label">แหล่งข้อมูลหลัก</span>
+                      <span id="spec-source" class="spec-val">Google Search & AI Studio</span>
+                    </div>
+                    <div class="spec-item">
+                      <span class="spec-label">ช่างภาพ / ลิขสิทธิ์</span>
+                      <span id="spec-copyright" class="spec-val">-</span>
+                    </div>
+                    <div class="spec-item">
+                      <span class="spec-label">ระยะเวลาจากวันเกิด</span>
+                      <span id="spec-diff" class="spec-val">-</span>
+                    </div>
+                    <div class="spec-item">
+                      <span class="spec-label">ประเภทสื่อ</span>
+                      <span id="spec-media-type" class="spec-val">ภาพถ่ายดาราศาสตร์</span>
+                    </div>
+                  </div>
+
+                  <!-- แถบสลับภาษาคำอธิบาย -->
+                  <div class="desc-lang-tabs">
+                    <button type="button" class="lang-tab-btn active" id="btn-tab-th">🇹🇭 คำอธิบายภาษาไทย</button>
+                    <button type="button" class="lang-tab-btn" id="btn-tab-en">🇺🇸 คำบรรยายต้นฉบับ (English)</button>
+                  </div>
+
+                  <!-- กล่องคำอธิบายย่อภาษาไทยและอังกฤษ -->
+                  <div class="description-box">
+                    <p id="desc-th">คำอธิบายย่อเกี่ยวกับการค้นพบนี้...</p>
+                    <p id="desc-en" class="description-en hidden">English description summary...</p>
+                  </div>
+
+                  <!-- ปุ่มควบคุมของการ์ด -->
+                  <div class="card-actions">
+                    <button id="btn-speak-summary" class="action-btn btn-voice" title="ฟังเสียงบรรยายจาก Google AI Studio">
+                      <span class="voice-icon">🎙️</span> 
+                      <span id="voice-btn-text">ฟังเสียง AI Studio</span>
+                      <span class="voice-bars hidden" id="voice-bars">
+                        <i></i><i></i><i></i>
+                      </span>
+                    </button>
+                    <a id="btn-google-search" class="action-btn btn-google" target="_blank" rel="noopener noreferrer" title="ค้นหาภาพและข้อมูลเพิ่มเติมบน Google Search">
+                      <span>🔍</span> ค้นหาบน Google
+                    </a>
+                    <a id="btn-google-images" class="action-btn btn-google-images" target="_blank" rel="noopener noreferrer" title="ดูรูปภาพที่เกี่ยวข้องบน Google Images">
+                      <span>🖼️</span> ภาพบน Google Images
+                    </a>
+                    <a id="btn-download-hd" class="action-btn" target="_blank" rel="noopener noreferrer" title="เปิดหรือดาวน์โหลดภาพความละเอียดสูง">
+                      <span>📥</span> ภาพความละเอียดสูง HD
+                    </a>
+                    <button id="btn-share-card" class="action-btn btn-share" title="คัดลอกข้อความสรุปเพื่อแชร์">
+                      <span>📤</span> คัดลอกการ์ดแชร์
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- แถบท่องกาลเวลา (สำรวจวันก่อนหน้า - วันถัดไป) -->
+            <nav class="day-stepper">
+              <button id="btn-prev-day" class="step-btn">
+                <span>⬅️</span> วันก่อนหน้า (-1 วัน)
+              </button>
+              <span class="stepper-center-label">ท่องเวลาดาราศาสตร์ Google Search ทีละวัน</span>
+              <button id="btn-next-day" class="step-btn">
+                วันถัดไป (+1 วัน) <span>➡️</span>
+              </button>
+            </nav>
+
+            <!-- ส่วนเสริม: วัตถุอวกาศประจำวันและเดือนเดียวกัน (Hubble Birthday Companion View) -->
+            <aside id="companion-section" class="monthday-companion hidden">
+              <div class="companion-header">
+                <h3><span>🎂</span> ภาพดาราศาสตร์ประจำวัน/เดือนเกิดของคุณ (ทุกๆ ปี)</h3>
+                <span style="font-size: 0.8rem; color: var(--cyan-glow);">Hubble & APOD Calendar</span>
+              </div>
+              <div class="companion-card-inner">
+                <img id="comp-img" class="companion-thumb" src="" alt="ภาพเสริม">
+                <div class="companion-info">
+                  <h4 id="comp-title" style="font-size: 1.1rem; color: #fff; margin-bottom: 4px;">ชื่อวัตถุ</h4>
+                  <span id="comp-type" style="font-size: 0.78rem; color: var(--cyan-glow); display: inline-block; margin-bottom: 8px;">ประเภท</span>
+                  <p id="comp-desc" style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">คำอธิบาย...</p>
+                </div>
+              </div>
+            </aside>
+
+          </div>
+        </section>
+
+      </div><!-- /.screens-track -->
+    </div><!-- /.mobile-viewport -->
+
+    <!-- จอเรดาร์สแกนเนอร์ระหว่างค้นหา (Dynamic Cosmic Scanner) -->
+    <div id="scanner-overlay" class="scanner-overlay">
+      <div class="radar-circle">
+        <div class="radar-sweep"></div>
+        <div class="radar-core">📸</div>
+      </div>
+      <div class="scanner-text">
+        <h3 id="scanner-date-text">กำลังค้นหาภาพในคลัง NASA APOD...</h3>
+        <p id="scanner-subtext">เชื่อมต่อเซิร์ฟเวอร์ดาราศาสตร์และดาวเทียม NASA</p>
+      </div>
+    </div>
+
+    <!-- โมดอลตั้งค่า Google AI Studio & Google Search -->
+    <div id="api-modal" class="lightbox-modal">
+      <div class="api-modal-card">
+        <button id="api-modal-close" class="lightbox-close" title="ปิด">&times;</button>
+        <div class="api-modal-header">
+          <span style="font-size: 28px;">✨</span>
+          <h3>ระบบ Google AI Studio & Google Search</h3>
+        </div>
+        <p class="api-modal-desc">
+          ระบบดึงแหล่งข้อมูลดาราศาสตร์ทั้งหมดผ่าน <strong>Google Search</strong> และใช้เสียงบรรยายระดับสตูดิโอจาก <strong>Google AI Studio</strong>
+        </p>
+        
+        <div class="api-form-group">
+          <label for="custom-api-key" class="api-label">Google AI Studio API Key (Gemini):</label>
+          <input type="password" id="custom-api-key" class="cosmic-input" placeholder="ป้อน AIzaSy... (ไม่ใส่ก็ได้ ระบบใช้ดัชนี Google Search ในเครื่อง)">
+          <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="chip-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+              🔑 รับ API Key ฟรีจาก Google AI Studio
+            </a>
+            <button type="button" id="btn-toggle-key-visibility" class="chip-btn">👁️ แสดง/ซ่อน Key</button>
+          </div>
+          <small class="api-hint">
+            * หากระบุ API Key จาก Google AI Studio ระบบจะค้นหาข้อมูลสดผ่าน <strong>Google Search Grounding</strong> และใช้ AI Studio ช่วยสร้างเสียงบรรยาย
+          </small>
+        </div>
+
+        <div class="api-form-group">
+          <label for="ai-voice-select" class="api-label">🎙️ เสียงบรรยาย Google AI Studio & Google Voice:</label>
+          <select id="ai-voice-select" class="cosmic-input" style="background: rgba(15, 23, 42, 0.95); color: #fff; cursor: pointer;">
+            <optgroup label="🇹🇭 โมเดลเสียงภาษาไทย (Thai Models)">
+              <option value="th-translate" selected>🇹🇭 Google Translation (เสียง Google แปลภาษาแท้ - แนะนำ)</option>
+              <option value="th-google">🇹🇭 Google ภาษาไทย (Chrome Natural Neural Engine)</option>
+            </optgroup>
+            <optgroup label="🇺🇸 โมเดลเสียงสากล (English - Google AI Studio)">
+              <option value="Aoede">🇺🇸 Google AI Studio: Aoede (เสียงอบอุ่น ละมุน ชวนค้นหา)</option>
+              <option value="Charon">🇺🇸 Google AI Studio: Charon (เสียงสุขุม ลุ่มลึก หนักแน่น)</option>
+              <option value="Kore">🇺🇸 Google AI Studio: Kore (เสียงนุ่มนวล ผ่อนคลาย)</option>
+              <option value="Puck">🇺🇸 Google AI Studio: Puck (เสียงสดใส มีชีวิตชีวา)</option>
+              <option value="Fenrir">🇺🇸 Google AI Studio: Fenrir (เสียงทุ้มก้อง ทรงพลัง)</option>
+              <option value="en-translate">🇺🇸 Google Translation English (เสียง Google แปลภาษา อังกฤษ)</option>
+              <option value="en-google">🇺🇸 Google US English (Standard Natural)</option>
+            </optgroup>
+          </select>
+          <div style="margin-top: 8px;">
+            <button type="button" id="btn-test-voice" class="chip-btn">🔊 ทดลองฟังเสียงนี้</button>
+          </div>
+        </div>
+
+        <div class="api-cache-status">
+          <span>💾 ข้อมูลจาก Google ที่แคชในเครื่อง:</span> <strong id="cache-count-label">0 วัน</strong>
+          <button type="button" id="btn-clear-cache" class="chip-btn" style="margin-left: auto;">ล้างแคช</button>
+        </div>
+
+        <div class="api-modal-actions">
+          <button type="button" id="btn-save-api" class="launch-btn" style="padding: 10px 24px;">บันทึกการตั้งค่า</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- โมดอลดูภาพขนาดเต็ม (Lightbox Modal) -->
+    <div id="lightbox-modal" class="lightbox-modal">
+      <div class="lightbox-content">
+        <button id="lightbox-close" class="lightbox-close" title="ปิด">&times;</button>
+        <img id="lightbox-img" src="" alt="ภาพขยาย">
+        <p id="lightbox-caption" class="lightbox-caption"></p>
+      </div>
+    </div>
+
+    <!-- ส่วนท้ายเว็บ (Footer) -->
+    <footer class="app-footer">
+      <p>ข้อมูลทั้งหมดค้นหาและดึงจาก <strong>Google Search</strong> และประมวลผลด้วย <strong>Google AI Studio</strong></p>
+      <p>ทำงานแบบ <strong>Standalone 100%</strong> พร้อมระบบค้นหาภาพสดผ่าน Google Search Grounding 🌌</p>
+    </footer>
+
+  </div>
+
+  <!-- โหลดสคริปต์ฐานข้อมูลและระบบการทำงาน -->
+  <script src="nasa-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
